@@ -39,7 +39,10 @@ def get_prices_constantly(id1: str):
         minutes_since_2022 = minutes + 60*hours + 24*60*days + 30*24*60*months + 12*30*24*60*(year-2022)
 
         print(price, minutes_since_2022)
-        cur.execute(f"INSERT INTO prices VALUES ('{id1}', {price}, {minutes_since_2022})")
+        try:
+            cur.execute(f"INSERT INTO prices VALUES ('{id1}', {price}, {minutes_since_2022})")
+        except:
+            print("failed to insert into database", price, minutes_since_2022)
         connection.commit()
 
         time.sleep(60.0 - ((time.time() - start) % 60.0))
