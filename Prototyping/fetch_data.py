@@ -1,8 +1,19 @@
 import urllib.request
 import json
 import time
+import sqlite3
 
 KEY = open("key.txt").read()
+DATABASE_PATH = "prices.sqlite"
+TABLE_NAME = "prices"
+
+def db_connection(path: str):
+    connection = None
+    try:
+        connection = sqlite3.connect(path)
+    except sqlite3.Error as e:
+        print("Error:", e)
+    return connection
 
 # get the current EUR price of a cryptocurrency by inputing the sticker symbol
 def current_price(id: str) -> tuple():
@@ -11,7 +22,7 @@ def current_price(id: str) -> tuple():
     json_dict = json.load(json_file)[0]
     return (json_dict['price'], json_dict["price_timestamp"])
 
-def get_prices_constantly(id1: str):
+def get_prices_constantly(id1: str, cur: sqlite3.Cursor):
     start = time.time()
     print("price", " "*7, "timestamp")
     while True:
@@ -25,6 +36,11 @@ def get_prices_constantly(id1: str):
         minutes_since_2022 = minutes + 60*hours + 24*60*days + 30*24*60*months + 12*30*24*60*(year-2022)
 
         print(price, minutes_since_2022)
+        cur.execute(f"INSERT INTO prices VALUES ('{id1}', {price}, {minutes_since_2022})")
+        for row in cur.execute("SELECT * FROM prices"):
+            print(row)
         time.sleep(60.0 - ((time.time() - start) % 60.0))
 
-get_prices_constantly("ETH")
+connection = db_connection(DATABASE_PATH)
+cur = connection.cursor()
+get_prices_constantly("ETH", cur)
