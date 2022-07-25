@@ -15,6 +15,9 @@ def db_connection(path: str):
 connection = db_connection(DATABASE_PATH)
 cur = connection.cursor()
 
-cur.execute("CREATE TABLE prices (id text, price real, timestamp int)")
+cur.execute("CREATE TABLE prices (crypto_id text not null, price real not null, timestamp integer primary key, unique (timestamp))")
+connection.commit()
 for row in cur.execute("SELECT name FROM sqlite_schema WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' ORDER BY 1;"):
     print(row)
+
+connection.close()

@@ -1,3 +1,4 @@
+from unittest.util import strclass
 import urllib.request
 import json
 import time
@@ -22,10 +23,12 @@ def current_price(id: str) -> tuple():
     json_dict = json.load(json_file)[0]
     return (json_dict['price'], json_dict["price_timestamp"])
 
-def get_prices_constantly(id1: str, cur: sqlite3.Cursor):
+def get_prices_constantly(id1: str):
     start = time.time()
     print("price", " "*7, "timestamp")
     while True:
+        connection = db_connection(DATABASE_PATH)
+        cur = connection.cursor()
         price, timestamp = current_price(id1)
         year = int(timestamp[:4])
         months = int(timestamp[5:7])
@@ -37,10 +40,9 @@ def get_prices_constantly(id1: str, cur: sqlite3.Cursor):
 
         print(price, minutes_since_2022)
         cur.execute(f"INSERT INTO prices VALUES ('{id1}', {price}, {minutes_since_2022})")
-        for row in cur.execute("SELECT * FROM prices"):
-            print(row)
+        connection.commit()
+
         time.sleep(60.0 - ((time.time() - start) % 60.0))
 
-connection = db_connection(DATABASE_PATH)
-cur = connection.cursor()
-get_prices_constantly("ETH", cur)
+
+get_prices_constantly("ETH")

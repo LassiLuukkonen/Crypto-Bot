@@ -1,4 +1,5 @@
 import sqlite3
+import time
 
 DATABASE_PATH = "prices.sqlite"
 
@@ -15,3 +16,7 @@ cur = connection.cursor()
 
 for row in cur.execute("SELECT * FROM prices"):
     print(row)
+
+time.sleep(20)
+
+connection.close()
